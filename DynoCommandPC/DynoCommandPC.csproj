@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Three variants (forks) from ONE codebase:
+         EdmSim=true  (default) -> full app incl. the EDM Simulator (BT SPP server,
+                                   native WinRT; needs the Win10 SDK TFM).
+         EdmSim=false           -> plain handheld over Bluetooth (net8.0-windows).
+         DynoNet=true           -> handheld over TCP/IP via the DynoServer relay
+                                   (implies non-sim). Defines DYNO_NET.
+       Build:  dotnet build -p:EdmSim=false        (Bluetooth handheld)
+               dotnet build -p:DynoNet=true        (network handheld)  -->
+  <PropertyGroup>
+    <DynoNet Condition="'$(DynoNet)'==''">false</DynoNet>
+    <!-- The network fork is a handheld (non-sim) build. -->
+    <EdmSim Condition="'$(EdmSim)'=='' and '$(DynoNet)'=='true'">false</EdmSim>
+    <EdmSim Condition="'$(EdmSim)'==''">true</EdmSim>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework Condition="'$(EdmSim)'=='true'">net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework Condition="'$(EdmSim)'!='true'">net8.0-windows</TargetFramework>
+    <SupportedOSPlatformVersion Condition="'$(EdmSim)'=='true'">10.0.17763.0</SupportedOSPlatformVersion>
+    <DefineConstants Condition="'$(EdmSim)'=='true'">$(DefineConstants);EDM_SIM</DefineConstants>
+    <DefineConstants Condition="'$(DynoNet)'=='true'">$(DefineConstants);DYNO_NET</DefineConstants>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>DynoCommandPC</RootNamespace>
+    <AssemblyName>DynoCommandPC</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <ApplicationIcon>CommandModule.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Embedded so windows can use it as their runtime Icon (taskbar/title bar). -->
+    <Resource Include="CommandModule.ico" />
+  </ItemGroup>
+
+  <!-- Exclude the EDM Simulator entirely from the handheld-only build. -->
+  <ItemGroup Condition="'$(EdmSim)'!='true'">
+    <Compile Remove="Server\**\*.cs" />
+    <Compile Remove="EdmServerWindow.xaml.cs" />
+    <Page Remove="EdmServerWindow.xaml" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,49 @@
+<Window x:Class="DynoCommandPC.EdmServerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="EDM Simulator (server)" Height="380" Width="580"
+        MinHeight="320" MinWidth="480"
+        Background="#15191E" WindowStartupLocation="CenterOwner">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Foreground="#9AA4B0" TextWrapping="Wrap"
+                   Text="Acts as the dyno's EDM: replays a captured log to a connecting handheld over Bluetooth SPP, so the Android app lights up without the real dyno. Point the Android app's EDM address at this PC, then Connect."/>
+
+        <!-- datalog picker -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,0">
+            <TextBlock Text="Datalog:" Foreground="#9AA4B0" VerticalAlignment="Center" Width="60"/>
+            <TextBox x:Name="TxtLog" Width="380" IsReadOnly="True" VerticalAlignment="Center"
+                     Background="#1C2127" Foreground="#FFFFFF" BorderBrush="#2A3038"/>
+            <Button x:Name="BtnBrowse" Content="Browse…" Margin="8,0,0,0" Padding="10,4" Click="Browse_Click"/>
+        </StackPanel>
+
+        <!-- PC BT address -->
+        <Border Grid.Row="2" Background="#1C2127" CornerRadius="6" Padding="10" Margin="0,12,0,0">
+            <StackPanel>
+                <TextBlock Text="This PC's Bluetooth address — set it as the Android app's EDM address:"
+                           Foreground="#9AA4B0"/>
+                <TextBlock x:Name="TxtAddr" Text="—" FontFamily="Consolas" FontSize="22" Foreground="#FFFFFF"/>
+            </StackPanel>
+        </Border>
+
+        <!-- controls -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,12,0,0">
+            <Button x:Name="BtnStart" Content="Start server" MinWidth="120" Padding="10,6" Click="Start_Click"/>
+            <Button x:Name="BtnStop" Content="Stop" MinWidth="90" Padding="10,6" Margin="8,0,0,0" Click="Stop_Click"/>
+        </StackPanel>
+
+        <!-- status -->
+        <TextBlock Grid.Row="4" x:Name="TxtStatus" Margin="0,12,0,0"
+                   Foreground="#8FD08F" FontWeight="SemiBold" Text="stopped" TextWrapping="Wrap"/>
+        <TextBlock Grid.Row="5" x:Name="TxtStats" Margin="0,8,0,0"
+                   Foreground="#9AA4B0" FontFamily="Consolas" VerticalAlignment="Top"/>
+    </Grid>
+</Window>

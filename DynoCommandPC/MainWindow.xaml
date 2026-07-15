@@ -1,0 +1,317 @@
+<Window x:Class="DynoCommandPC.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:DynoCommandPC.ViewModel"
+        Title="Dyno Command — PC Test Console" Height="720" Width="980"
+        MinHeight="560" MinWidth="820" ResizeMode="CanResize" Icon="CommandModule.ico"
+        Background="#15181C" Foreground="#E8EBEE" FontFamily="Segoe UI" FontSize="13">
+
+    <Window.Resources>
+        <conv:ModeBrushConverter x:Key="ModeBrush"/>
+        <conv:BoolToStarGridLengthConverter x:Key="B2GL"/>
+        <BooleanToVisibilityConverter x:Key="B2V"/>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Background" Value="#2A3038"/>
+            <Setter Property="Foreground" Value="#E8EBEE"/>
+            <Setter Property="BorderBrush" Value="#3C4450"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#0E1013"/>
+            <Setter Property="Foreground" Value="#E8EBEE"/>
+            <Setter Property="BorderBrush" Value="#3C4450"/>
+            <Setter Property="Padding" Value="4,3"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Padding" Value="4,3"/>
+            <Setter Property="MinWidth" Value="90"/>
+        </Style>
+        <Style x:Key="Hdr" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#7FB2E5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,10,0,4"/>
+        </Style>
+        <Style x:Key="Dim" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#9AA4B0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*" MinHeight="240"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*" MinHeight="150"/>
+        </Grid.RowDefinitions>
+
+        <!-- Connection bar -->
+        <Border Grid.Row="0" Background="#1C2127" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="EDM" Foreground="#9AA4B0" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <TextBlock Text="{Binding EdmAddress}" FontFamily="Consolas" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <Button Content="Connect" Command="{Binding ConnectCommand}" MinWidth="90"/>
+                <Button Content="Disconnect" Command="{Binding DisconnectCommand}" MinWidth="90"/>
+                <Button Content="⚙ Settings…" Command="{Binding OpenSettingsCommand}" MinWidth="90"/>
+                <Button x:Name="BtnEdmSim" Content="EDM Sim…" Click="OpenEdmServer_Click" MinWidth="90"/>
+                <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Margin="14,0,0,0"
+                           Foreground="#8FD08F" FontWeight="SemiBold"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Main content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="420"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Live read-outs -->
+            <Border Grid.Column="0" Background="#1C2127" CornerRadius="6" Padding="16" Margin="0,0,10,0">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="1.5*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="SET" Style="{StaticResource Hdr}" HorizontalAlignment="Center" Margin="0"/>
+                            <TextBlock Text="{Binding SetSpeed}" FontSize="56" FontWeight="Bold"
+                                       Foreground="#7FB2E5" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding SpeedUnitLabel}" Style="{StaticResource Dim}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="ACTUAL (EDM)" Style="{StaticResource Hdr}" HorizontalAlignment="Center" Margin="0"/>
+                            <TextBlock Text="{Binding ActualSpeed}" FontSize="84" FontWeight="Bold"
+                                       Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding LiveUnitLabel}" Style="{StaticResource Dim}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,18,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                            <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Roller (revs/s)" Style="{StaticResource Dim}" Grid.Row="0"/>
+                        <TextBlock Text="{Binding SpeedRevs}" Grid.Row="0" Grid.Column="1"/>
+                        <TextBlock Text="Raw master" Style="{StaticResource Dim}" Grid.Row="1"/>
+                        <TextBlock Text="{Binding RawMaster}" Grid.Row="1" Grid.Column="1"/>
+                        <TextBlock Text="Ramp rate" Style="{StaticResource Dim}" Grid.Row="2"/>
+                        <TextBlock Text="{Binding CurrentRampRate}" Grid.Row="2" Grid.Column="1"/>
+                        <TextBlock Text="Brake" Style="{StaticResource Dim}" Grid.Row="3"/>
+                        <TextBlock Text="{Binding BrakeState}" Grid.Row="3" Grid.Column="1"/>
+                        <TextBlock Text="Hands-free" Style="{StaticResource Dim}" Grid.Row="4"/>
+                        <TextBlock Text="{Binding HandsfreeState}" Grid.Row="4" Grid.Column="1"/>
+                        <TextBlock Text="Last RX" Style="{StaticResource Dim}" Grid.Row="5"/>
+                        <TextBlock Text="{Binding LinkAge}" Grid.Row="5" Grid.Column="1"/>
+                        <TextBlock Text="Bed actual" Style="{StaticResource Dim}" Grid.Row="6"
+                                   Visibility="{Binding Show4WdFeatures, Converter={StaticResource B2V}}"/>
+                        <TextBlock Text="{Binding BedActual}" Grid.Row="6" Grid.Column="1"
+                                   Visibility="{Binding Show4WdFeatures, Converter={StaticResource B2V}}"/>
+                        <TextBlock Text="Bed target" Style="{StaticResource Dim}" Grid.Row="7"
+                                   Visibility="{Binding Show4WdFeatures, Converter={StaticResource B2V}}"/>
+                        <TextBlock Text="{Binding BedTarget}" Grid.Row="7" Grid.Column="1"
+                                   Visibility="{Binding Show4WdFeatures, Converter={StaticResource B2V}}"/>
+                        <TextBlock Text="Transmission" Style="{StaticResource Dim}" Grid.Row="8"/>
+                        <TextBlock Text="{Binding TransmissionText}" Grid.Row="8" Grid.Column="1"/>
+                        <TextBlock Text="4WD mode" Style="{StaticResource Dim}" Grid.Row="9"
+                                   Visibility="{Binding Show4WdFeatures, Converter={StaticResource B2V}}"/>
+                        <TextBlock Text="{Binding In4wdText}" Grid.Row="9" Grid.Column="1"
+                                   Visibility="{Binding Show4WdFeatures, Converter={StaticResource B2V}}"/>
+                        <TextBlock Text="Devices" Style="{StaticResource Dim}" Grid.Row="10"/>
+                        <TextBlock Text="{Binding DeviceStatus}" Grid.Row="10" Grid.Column="1" FontFamily="Consolas"/>
+                    </Grid>
+
+                    <Border Background="#0E1013" CornerRadius="4" Padding="8" Margin="0,16,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Active mode" Style="{StaticResource Dim}"/>
+                            <TextBlock Text="{Binding ModeText}" FontSize="22" FontWeight="SemiBold" Foreground="#7FB2E5"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Controls -->
+            <Border Grid.Column="1" Background="#1C2127" CornerRadius="6" Padding="16">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Border Background="#3A2E12" CornerRadius="4" Padding="8,5" Margin="0,0,0,6"
+                                Visibility="{Binding IsShootoutActive, Converter={StaticResource B2V}}">
+                            <TextBlock Text="{Binding ShootoutBanner}" Foreground="#E5A33C" FontWeight="SemiBold"/>
+                        </Border>
+                        <TextBlock Text="MODE" Style="{StaticResource Hdr}" Margin="0,0,0,4"/>
+                        <WrapPanel>
+                            <WrapPanel.Resources>
+                                <!-- Mode option boxes: ~2x the default button size -->
+                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                    <Setter Property="MinWidth" Value="150"/>
+                                    <Setter Property="MinHeight" Value="62"/>
+                                    <Setter Property="FontSize" Value="16"/>
+                                    <Setter Property="Margin" Value="4"/>
+                                </Style>
+                            </WrapPanel.Resources>
+                            <Button Content="No Load"   Command="{Binding SetModeCommand}" CommandParameter="NoLoad"
+                                    Background="{Binding ModeText, Converter={StaticResource ModeBrush}, ConverterParameter=NoLoad}"/>
+                            <Button Content="Speed"     Command="{Binding SetModeCommand}" CommandParameter="Speed"
+                                    Background="{Binding ModeText, Converter={StaticResource ModeBrush}, ConverterParameter=Speed}"/>
+                            <Button Content="Load"      Command="{Binding SetModeCommand}" CommandParameter="Load"
+                                    Background="{Binding ModeText, Converter={StaticResource ModeBrush}, ConverterParameter=Load}"/>
+                            <Button Content="{Binding BasicButtonText}" Command="{Binding BasicCycleCommand}"
+                                    Background="{Binding BasicActiveTag, Converter={StaticResource ModeBrush}, ConverterParameter=ACTIVE}"/>
+                            <Button Content="{Binding AdvancedButtonText}" Command="{Binding AdvancedCycleCommand}"
+                                    Background="{Binding AdvancedActiveTag, Converter={StaticResource ModeBrush}, ConverterParameter=ACTIVE}"/>
+                            <Button Content="Hands-free" Command="{Binding SetModeCommand}" CommandParameter="Handsfree"
+                                    Background="{Binding ModeText, Converter={StaticResource ModeBrush}, ConverterParameter=Handsfree}"/>
+                            <Button Content="Set Bed"   Command="{Binding SetModeCommand}" CommandParameter="SetBed"
+                                    Visibility="{Binding Show4WdFeatures, Converter={StaticResource B2V}}"
+                                    Background="{Binding ModeText, Converter={StaticResource ModeBrush}, ConverterParameter=SetBed}"/>
+                            <Button Content="{Binding BrakeButtonText}" Command="{Binding ToggleBrakeCommand}"
+                                    Background="{Binding ModeText, Converter={StaticResource ModeBrush}, ConverterParameter=Brake}"/>
+                        </WrapPanel>
+
+                        <TextBlock Style="{StaticResource Hdr}">
+                            <Run Text="TARGET SPEED ("/><Run Text="{Binding SpeedUnitLabel, Mode=OneWay}"/><Run Text=")"/>
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="{Binding SpeedDecLargeLabel}" Command="{Binding NudgeSpeedCommand}" CommandParameter="L-"/>
+                            <Button Content="{Binding SpeedDecSmallLabel}" Command="{Binding NudgeSpeedCommand}" CommandParameter="S-"/>
+                            <TextBox Text="{Binding TargetSpeed, UpdateSourceTrigger=PropertyChanged}" Width="80" TextAlignment="Center"/>
+                            <Button Content="{Binding SpeedIncSmallLabel}" Command="{Binding NudgeSpeedCommand}" CommandParameter="S+"/>
+                            <Button Content="{Binding SpeedIncLargeLabel}" Command="{Binding NudgeSpeedCommand}" CommandParameter="L+"/>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding ShowLoad, Converter={StaticResource B2V}}">
+                            <TextBlock Text="TARGET LOAD" Style="{StaticResource Hdr}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="−5" Command="{Binding NudgeLoadCommand}" CommandParameter="-5"/>
+                                <Button Content="−1" Command="{Binding NudgeLoadCommand}" CommandParameter="-1"/>
+                                <TextBox Text="{Binding TargetLoad, UpdateSourceTrigger=PropertyChanged}" Width="80" TextAlignment="Center"/>
+                                <Button Content="+1" Command="{Binding NudgeLoadCommand}" CommandParameter="1"/>
+                                <Button Content="+5" Command="{Binding NudgeLoadCommand}" CommandParameter="5"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding ShowRamp, Converter={StaticResource B2V}}">
+                            <TextBlock Text="RAMP RATE (km/h/s)" Style="{StaticResource Hdr}"/>
+                            <StackPanel Orientation="Horizontal" IsEnabled="{Binding RampUnlocked}">
+                                <Button Content="−10" Command="{Binding NudgeRampCommand}" CommandParameter="-10"/>
+                                <Button Content="−1" Command="{Binding NudgeRampCommand}" CommandParameter="-1"/>
+                                <TextBox Text="{Binding RampRate, UpdateSourceTrigger=PropertyChanged}" Width="80" TextAlignment="Center"/>
+                                <Button Content="+1" Command="{Binding NudgeRampCommand}" CommandParameter="1"/>
+                                <Button Content="+10" Command="{Binding NudgeRampCommand}" CommandParameter="10"/>
+                                <TextBlock Text="km/h/s" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="#9AA4B0"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding ShowBed, Converter={StaticResource B2V}}">
+                            <TextBlock Text="BED POSITION (m)" Style="{StaticResource Hdr}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="−0.1" Command="{Binding NudgeBedCommand}" CommandParameter="-0.1"/>
+                                <TextBox Text="{Binding BedPosition, UpdateSourceTrigger=PropertyChanged}" Width="80" TextAlignment="Center"/>
+                                <Button Content="+0.1" Command="{Binding NudgeBedCommand}" CommandParameter="0.1"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <TextBlock Text="FANS &amp; CONFIG" Style="{StaticResource Hdr}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Fan 1" Style="{StaticResource Dim}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <ComboBox ItemsSource="{Binding FanModes}" SelectedItem="{Binding Fan1}"/>
+                            <TextBlock Text="Fan 2" Style="{StaticResource Dim}" VerticalAlignment="Center" Margin="14,0,6,0"/>
+                            <ComboBox ItemsSource="{Binding FanModes}" SelectedItem="{Binding Fan2}"/>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding ShowBalance, Converter={StaticResource B2V}}">
+                            <TextBlock Text="4WD BALANCE (front/rear)" Style="{StaticResource Hdr}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="−5" Command="{Binding NudgeBalanceCommand}" CommandParameter="-5"/>
+                                <Button Content="−1" Command="{Binding NudgeBalanceCommand}" CommandParameter="-1"/>
+                                <TextBox Text="{Binding Balance, UpdateSourceTrigger=PropertyChanged}" Width="80" TextAlignment="Center"/>
+                                <Button Content="+1" Command="{Binding NudgeBalanceCommand}" CommandParameter="1"/>
+                                <Button Content="+5" Command="{Binding NudgeBalanceCommand}" CommandParameter="5"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <TextBlock Text="ACTIONS" Style="{StaticResource Hdr}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Snapshot" Command="{Binding SnapshotCommand}"/>
+                            <Button Content="Clear Graph" Command="{Binding GraphClearCommand}"/>
+                            <Button Content="Swap Screens" Command="{Binding SwapScreensCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- Drag handle between the controls and the diagnostics/log area -->
+        <GridSplitter Grid.Row="2" Height="6" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                      Background="#3C4450" ResizeBehavior="PreviousAndNext" ResizeDirection="Rows"
+                      Margin="0,4,0,0" Cursor="SizeNS"
+                      ToolTip="Drag to resize the packet log area"/>
+
+        <!-- Diagnostics / log -->
+        <Border Grid.Row="3" Background="#1C2127" CornerRadius="6" Padding="10" Margin="0,6,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="{Binding ShowPacketLog, Converter={StaticResource B2GL}}"/>
+                    <RowDefinition Height="{Binding ShowPacketsSeen, Converter={StaticResource B2GL}}"/>
+                    <RowDefinition Height="{Binding ShowRawRx, Converter={StaticResource B2GL}}"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <TextBlock Text="TX" Style="{StaticResource Dim}"/>
+                    <TextBlock Text="{Binding TxCount}" Margin="4,0,14,0"/>
+                    <TextBlock Text="RX" Style="{StaticResource Dim}"/>
+                    <TextBlock Text="{Binding RxCount}" Margin="4,0,14,0"/>
+                    <TextBlock Text="Errors" Style="{StaticResource Dim}"/>
+                    <TextBlock Text="{Binding ErrCount}" Margin="4,0,14,0"/>
+                    <TextBlock Text="Comms losses" Style="{StaticResource Dim}"/>
+                    <TextBlock Text="{Binding CommsLosses}" Margin="4,0,14,0" Foreground="#E5A33C" FontWeight="SemiBold"/>
+                    <TextBlock Text="last TX:" Style="{StaticResource Dim}"/>
+                    <TextBlock Text="{Binding LastTx}" FontFamily="Consolas" Margin="4,0,14,0"/>
+                    <TextBlock Text="last RX:" Style="{StaticResource Dim}"/>
+                    <TextBlock Text="{Binding LastRx}" FontFamily="Consolas" Margin="4,0,0,0"/>
+                </StackPanel>
+
+                <DockPanel Grid.Row="1" Margin="0,6,0,0"
+                           Visibility="{Binding ShowPacketLog, Converter={StaticResource B2V}}">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                        <CheckBox Content="Log packets" IsChecked="{Binding LogEnabled}" Foreground="#E8EBEE" VerticalAlignment="Center"/>
+                        <Button Content="Save…" Command="{Binding SaveLogCommand}" ToolTip="Save the captured packets to a file"/>
+                        <Button Content="Clear" Command="{Binding ClearLogCommand}"/>
+                    </StackPanel>
+                    <TextBox Text="{Binding LogText, Mode=OneWay}" IsReadOnly="True" MinHeight="60"
+                             FontFamily="Consolas" FontSize="11" Margin="0,6,0,0"
+                             VerticalScrollBarVisibility="Auto"
+                             TextWrapping="NoWrap"/>
+                </DockPanel>
+
+                <DockPanel Grid.Row="2" Margin="0,8,0,0"
+                           Visibility="{Binding ShowPacketsSeen, Converter={StaticResource B2V}}">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                        <TextBlock Text="PACKET TYPES SEEN (incl. ones we don't decode)" Style="{StaticResource Hdr}" Margin="0"/>
+                        <Button Content="Reset" Command="{Binding ClearStatsCommand}" Margin="10,0,0,0" Padding="8,2"/>
+                    </StackPanel>
+                    <TextBox Text="{Binding InspectorText, Mode=OneWay}" IsReadOnly="True" MinHeight="60"
+                             FontFamily="Consolas" FontSize="11" Margin="0,4,0,0"
+                             VerticalScrollBarVisibility="Auto"
+                             TextWrapping="NoWrap"/>
+                </DockPanel>
+
+                <DockPanel Grid.Row="3" Margin="0,8,0,0"
+                           Visibility="{Binding ShowRawRx, Converter={StaticResource B2V}}">
+                    <TextBlock DockPanel.Dock="Top" Text="RAW RX (bytes before framing — captured to logs\dyno-raw-*.log)"
+                               Style="{StaticResource Hdr}" Margin="0"/>
+                    <TextBox Text="{Binding RawText, Mode=OneWay}" IsReadOnly="True" MinHeight="60"
+                             FontFamily="Consolas" FontSize="11" Margin="0,4,0,0"
+                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                             TextWrapping="NoWrap"/>
+                </DockPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

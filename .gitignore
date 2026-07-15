@@ -1,0 +1,25 @@
+# .NET build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+
+# IDE
+.vs/
+.idea/
+*.csproj.user
+
+# App runtime output (written beside the exe)
+settings.json
+logs/
+
+# Captures you record yourself. The one sample below is committed on purpose:
+# it is the simulator's test fixture, and the app needs a capture to replay.
+dyno-capture-*.txt
+!dyno-capture-20260627-103431.txt
+
+# OS
+Thumbs.db
+.DS_Store
