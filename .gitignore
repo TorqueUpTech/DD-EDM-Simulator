@@ -6,6 +6,10 @@ obj/
 *.user
 *.suo
 
+# Published variants (dist\EDM-Sim, dist\Handheld, dist\Handheld-Net) - see
+# the publish commands in the README.
+dist/
+
 # IDE
 .vs/
 .idea/
